@@ -1,0 +1,40 @@
+<div class="container">
+  <main class="form-signin w-100 m-auto">
+    <form (submit)="onSubmit()">
+      <h1 class="h3 mb-3 fw-normal">Create new board</h1>
+
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="floatingUsername"
+          placeholder="Name"
+          [(ngModel)]="name"
+          name="name"
+          required
+        />
+        <label for="floatingInput ">Board Name</label>
+      </div>
+      <div class="form-floating">
+        <input
+          type="password"
+          class="form-control"
+          id="floatingUsere"
+          placeholder="User"
+          [(ngModel)]="user.id"
+          name="user"
+
+          disabled
+        />
+        <label for="floatingInput">User</label>
+      </div>
+      <button class="btn btn-outline-dark w-100 mb-2" type="submit">
+        Register board!
+      </button>
+      <button class="btn btn-outline-dark w-100" type="button" (click)="onMain()">
+       Back to board manager
+      </button>
+    </form>
+  </main>
+</div>
+

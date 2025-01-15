@@ -1,0 +1,6 @@
+PUT http://localhost:5050/api/v1/users/profile-pic/35fe1926-1989-483e-ab34-714f9d2ecbcf
+Content-Type: application/json
+
+{
+  "profile_pic": "ruta/a_la/imagen.jpg"
+}

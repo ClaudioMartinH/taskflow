@@ -1,0 +1,241 @@
+<nav class="navbar bg-dark border-bottom border-body py-0" data-bs-theme="dark">
+  <ul class="nav justify-content-end">
+    <li class="nav-item">
+      <a
+        class="nav-link active ms-3"
+        aria-current="page"
+        href="home"
+        title="go back to board manager"
+        >main</a
+      >
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="logout" title="close session">logout</a>
+    </li>
+  </ul>
+  <div>
+    <ul class="nav justify-content-end">
+      <li class="nav-item">
+        <a class="nav-link">Welcome {{ user?.username }}</a>
+      </li>
+    </ul>
+  </div>
+  <div>
+    <button
+      class="btn btn-outline-danger ms-2 btn-sm"
+      (click)="deleteProfile()"
+      title="delete profile"
+    >
+      Delete profile
+    </button>
+    <button
+      *ngIf="!isEditing"
+      class="btn btn-outline-info ms-2 p-1 btn-sm"
+      (click)="toggleEditMode()"
+      title="edit ptofile"
+    >
+      Edit Profile
+    </button>
+  </div>
+</nav>
+<div class="container emp-profile">
+  <div *ngIf="user; else loading">
+    <form>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="profile-img">
+            <img
+              [src]="user.profile_pic || '/img/default2.jpg'"
+              alt="Profile Picture"
+              class="img-thumbnail"
+              style="width: 150px; height: 150px"
+            />
+            <div class="file btn btn-lg btn-primary">
+              Change Photo
+             <input type="file" name="profile-pic" (change)="onFileSelected($event)" />
+            </div>
+          </div>
+        </div>
+        <div class="info col-md-6">
+          <h1>{{ user.fullname }}</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="profile-work">
+            <p>USER TASK & BOARD INFO</p>
+            <div>
+              <p><strong>Active Boards</strong></p>
+              <ul class="ul-profile">
+                <li *ngFor="let board of boards">
+                  <a class="bt-list">{{ board.name }}</a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p><strong>Pending Tasks</strong></p>
+              <div
+                *ngIf="pendingTasks && pendingTasks.length > 0; else noTasks"
+              >
+                <ul class="ul-profile">
+                  <a class="bt-list" *ngFor="let task of pendingTasks">
+                    {{ task.title }} - {{ task.description }} <br />
+                  </a>
+                </ul>
+              </div>
+              <ng-template #noTasks>
+                <p>No hay tareas pendientes.</p>
+              </ng-template>
+            </div>
+            <div>
+              <p><strong>Completed Tasks</strong></p>
+              <div
+                *ngIf="
+                  completedTasks && completedTasks.length > 0;
+                  else noTasks
+                "
+              >
+                <ul class="ul-profile">
+                  <a class="bt-list" *ngFor="let task of completedTasks">
+                    {{ task.title }} - {{ task.description }} <br />
+                  </a>
+                </ul>
+              </div>
+              <ng-template #noTasks>
+                <p>No hay tareas completadas.</p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="tab-content profile-tab">
+            <div class="tab-pane fade show active">
+              <div class="row">
+                <div class="info col-md-6">
+                  <label>User ID</label>
+                </div>
+                <div class="info col-md-6">
+                  <p>{{ user.id }}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="info col-md-6">
+                  <label>Name</label>
+                </div>
+                <div class="info col-md-6">
+                  <p *ngIf="!isEditing">{{ user.fullname }}</p>
+                  <input
+                    *ngIf="isEditing"
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="fullname"
+                    placeholder="Full Name"
+                    name="fullname"
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="info col-md-6">
+                  <label>Username</label>
+                </div>
+                <div class="info col-md-6">
+                  <p *ngIf="!isEditing">{{ user.username }}</p>
+                  <input
+                    *ngIf="isEditing"
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="username"
+                    placeholder="User Name"
+                    name="username"
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="info col-md-6">
+                  <label>Email</label>
+                </div>
+                <div class="info col-md-6">
+                  <p *ngIf="!isEditing">{{ user.email }}</p>
+                  <input
+                    *ngIf="isEditing"
+                    type="email"
+                    class="form-control"
+                    [(ngModel)]="email"
+                    placeholder="Email"
+                    name="email"
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="info col-md-6">
+                  <label>Password</label>
+                </div>
+                <div class="col-md-6 d-flex align-items-center">
+                  <p class="mb-0" style="font-size: 9.5px">
+                    {{ showPassword ? user.password : "******" }}
+                  </p>
+                  <button
+                    class="btn btn-sm btn-outline-secondary ms-2"
+                    style="padding: 0"
+                    (click)="togglePasswordVisibility()"
+                    type="button"
+                  >
+                    {{ showPassword ? "Hide" : "Show" }}
+                  </button>
+                  <input
+                    *ngIf="isEditing"
+                    type="password"
+                    class="form-control"
+                    [(ngModel)]="password"
+                    placeholder="New Password"
+                    name="password"
+                    autocomplete="current-password"
+                  />
+                </div>
+              </div>
+              <div *ngIf="isEditing" class="mt-3">
+                <button class="btn btn-outline-success ms-2 p-1 btn-sm" (click)="updateProfile()">
+                  Save
+                </button>
+                <button class="btn btn-outline-danger ms-2 btn-sm" (click)="cancelEdit()">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <ng-template #loading>
+    <p>Cargando información del usuario...</p>
+  </ng-template>
+</div>
+<footer>
+  <div class="nav-text">2025 All rights reserved || Claudio Martin Herranz</div>
+  <ul class="nav justify-content-end me-5">
+    <li class="nav-item">
+      <a
+        class="nav-link active ms-3"
+        aria-current="page"
+        href="https://github.com/ClaudioMartinH"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="https://x.com/martinherranzc">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        href="https://www.linkedin.com/in/claudio-martin-herranz"
+      >
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  </ul>
+</footer>

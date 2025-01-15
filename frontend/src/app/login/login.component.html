@@ -1,0 +1,56 @@
+<div class="container">
+  <main class="form-signin w-100 m-auto">
+    <form (submit)="onSubmit()">
+      <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+      <!-- Email Input -->
+      <div class="form-floating">
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+          name="email"
+          [(ngModel)]="email"
+          required
+        />
+        <label for="floatingInput">Email address</label>
+      </div>
+
+      <!-- Password Input -->
+      <div class="form-floating">
+        <input
+          type="password"
+          class="form-control"
+          id="floatingPassword"
+          placeholder="Password"
+          name="password"
+          [(ngModel)]="password"
+          required
+        />
+        <label for="floatingPassword">Password</label>
+      </div>
+
+      <!-- Remember Me -->
+      <div class="form-check text-start my-3">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value="remember-me"
+          id="flexCheckDefault"
+        />
+        <label class="form-check-label" for="flexCheckDefault">
+          Remember me
+        </label>
+      </div>
+
+      <!-- Buttons -->
+      <button class="btn btn-outline-dark w-100 mb-2" type="submit">
+        Sign in
+      </button>
+      <button class="btn btn-outline-dark w-100" type="button" (click)="onRegister()">
+        Don't have an account?
+      </button>
+    </form>
+  </main>
+</div>

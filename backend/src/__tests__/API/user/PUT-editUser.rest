@@ -1,0 +1,9 @@
+PUT http://localhost:5050/api/v1/users/62fe24dc-0388-481e-9a4e-aabb359a6019
+Content-Type: application/json
+
+{
+  "username": "claudimartin",
+  "fullname": "Claudio Martin",
+  "email": "claudio@example.com",
+  "password": "123456"
+}

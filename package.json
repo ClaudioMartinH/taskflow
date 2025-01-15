@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "start": "cd backend && npm run up",
+    "stop": "cd backend ¬¬ npm run down:volumes"
+  }
+}

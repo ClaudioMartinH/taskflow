@@ -1,0 +1,84 @@
+services:
+  taskflow-postgres:
+    image: postgres:latest
+    container_name: taskflow-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: taskflow_user
+      POSTGRES_PASSWORD: taskflow_password
+      POSTGRES_DB: taskflow_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U taskflow_user -d taskflow_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    ports:
+      - "5050:5050"
+    environment:
+      DB_HOST: taskflow-postgres
+      DB_PORT: 5432
+      DB_USER: taskflow_user
+      DB_PASSWORD: taskflow_password
+      DB_NAME: taskflow_db
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: user
+      RABBITMQ_PASS: password
+    depends_on:
+      taskflow-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+    volumes:
+      - ./backend:/usr/src/app
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmqctl status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  services:
+    build:
+      context: ./services
+    container_name: services
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: user
+      RABBITMQ_PASS: password
+    restart: on-failure
+    networks:
+      - taskflow-network
+volumes:
+  postgres_data:
+
+
+networks:
+  taskflow-network:

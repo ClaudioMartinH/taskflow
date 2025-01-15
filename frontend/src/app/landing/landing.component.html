@@ -1,0 +1,71 @@
+<nav class="navbar bg-dark border-bottom border-body py-0" data-bs-theme="dark">
+  <ul class="nav justify-content-end">
+    <li class="nav-item">
+      <a class="nav-link active ms-3" aria-current="page" href="mailto:martinherranzc@gmail.com?subject=Hey! I saw your Workflow App">contact</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">about</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="https://claudiomartinh.github.io/">my portfolio</a>
+    </li>
+  </ul>
+  <div>
+    <a
+      href="register"
+      class="btn btn-outline-info ms-2 btn-sm"
+      title="delete profile"
+    >
+      Register
+    </a>
+    <a
+      href="login"
+      class="btn btn-outline-light ms-2 p-1 me-4 btn-sm"
+      title="edit ptofile"
+    >
+      Login
+    </a>
+  </div>
+</nav>
+
+<main>
+  <div class="container">
+    <h1>Welcome to Taskflow</h1>
+    <div class="content">
+      <div class="image-text">
+        <div class="text" [innerHTML]="displayedText"></div>
+        <div class="img">
+          <img class="img" [src]="'/img/landing.jpeg'" alt="" />
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="nav-text">2025 All rights reserved || Claudio Martin Herranz</div>
+  <ul class="nav justify-content-end me-5">
+    <li class="nav-item">
+      <a
+        class="nav-link active ms-3"
+        aria-current="page"
+        href="https://github.com/ClaudioMartinH"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="https://x.com/martinherranzc">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        href="https://www.linkedin.com/in/claudio-martin-herranz"
+      >
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  </ul>
+</footer>
