@@ -36,7 +36,7 @@ main {
   display: flex;
   flex-direction: column;
   text-align: center;
-  min-width: 20%;
+  min-width: 24%;
   min-height: 75%;
   padding: 10px;
   font-size: 1.2rem;
@@ -72,6 +72,47 @@ li {
     color: #081e269d;
     font-size: 0.9rem;
   }
+
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-size: 10px;
+    padding: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.093);
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0);
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+  }
+
+  select:focus {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-color: rgba(208, 208, 35, 0.643);
+    border: none;
+  }
+
+  select option {
+    background: rgba(208, 208, 35, 0.486);
+    color: black;
+  }
+
+  select:hover {
+    background: rgba(208, 208, 35, 0.197);
+    border-color: rgba(208, 208, 35, 0.643);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.176);
+  }
+}
+
+[cdkDrag] {
+  cursor: grab;
+}
+
+[cdkDrag]:active {
+  cursor: grabbing;
 }
 
 .card-new {
@@ -164,13 +205,14 @@ footer {
   height: 8%;
   opacity: 0;
   background: linear-gradient(-45deg,
-      #0f4d5ecb,
-      #122a4fb8,
-      #29103fb3);
+      #0f4d5eed,
+      #122a4fe8,
+      #29103fe6);
   width: 100%;
   bottom: 0;
   position: fixed;
   user-select: none;
+
   a {
     color: #06a8fff6;
     ;
@@ -212,7 +254,9 @@ footer:hover :hover {
   transition: background-color 0.3s ease-in-out;
 }
 
-.custom-assign, .custom-inprogress, .custom-complete {
+.custom-assign,
+.custom-inprogress,
+.custom-complete {
   font-size: 10px;
   padding: 5px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.093);
@@ -220,18 +264,20 @@ footer:hover :hover {
   border: 1px solid transparent;
   background: rgba(255, 255, 255, 0);
   transition: border-color 0.3s ease;
-  }
-  
+}
+
 .custom-assign:hover {
   background: rgba(208, 208, 35, 0.197);
   border-color: rgba(208, 208, 35, 0.643);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.176);
 }
+
 .custom-inprogress:hover {
   background: #ee0ac044;
   border-color: #ee0ac0c5;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.176);
 }
+
 .custom-complete:hover {
   background: #25ed3641;
   border-color: #25ed36d9;
@@ -290,7 +336,45 @@ footer:hover :hover {
   background: rgba(255, 255, 255, 0.086);
   user-select: none;
 }
+
 .h3:hover {
   background: rgba(255, 255, 255, 0.15);
   cursor: auto;
+}
+
+.assigned-user {
+  color: #007bff;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.toast {
+  animation: fadeOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.toast-container {
+  background: #0f6cd000;
+}
+
+.toast-header {
+  background: #208db49d;
+}
+
+.toast-body {
+  background: #208db49d;
+
 }

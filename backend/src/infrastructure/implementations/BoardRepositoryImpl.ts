@@ -28,6 +28,6 @@ export class BoardRepositoryImpl implements BoardRepository {
     await this.knex('boards').delete().where({ id: boardId });
   }
   async getTasksByBoard(boardId: string): Promise<Task[]> {
-    return this.knex('tasks').where({ board_id: boardId }).select(); // TODO: Implement this method to fetch tasks related to a board
+    return this.knex('tasks').where({ board_id: boardId }).select();
   }
 }

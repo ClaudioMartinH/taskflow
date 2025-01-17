@@ -1,10 +1,10 @@
 import { Component, OnInit, NgModule, ChangeDetectorRef } from '@angular/core';
-import { UserService } from '../services/users.service';
-import { AuthService } from '../services/auth-service.service';
-import { User } from '../models/models';
+import { UserService } from '../../services/users.service';
+import { AuthService } from '../../services/auth-service.service';
+import { User } from '../../models/models';
 import { CommonModule } from '@angular/common';
-import { TaskServiceService } from '../services/task-service.service';
-import { BoardServiceService } from '../services/board-service.service';
+import { TaskServiceService } from '../../services/task-service.service';
+import { BoardServiceService } from '../../services/board-service.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 // import { BrowserModule } from '@angular/platform-browser';
@@ -190,21 +190,23 @@ export class ProfileComponent implements OnInit {
 
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
-    console.log('file: ', file);
 
     if (file && this.user?.id) {
       const formData = new FormData();
-      formData.append('profilePic', file); // 'profilePic' debe coincidir con el campo en el backend
+      formData.append('profile_pic', file);
+
+      // 📌 DEBUG: Ver qué se está enviando
+      for (const pair of formData.entries()) {
+        console.log(`📦 FormData: ${pair[0]}, ${pair[1]}`);
+      }
 
       this.userService.updateProfilePicture(this.user.id, formData).subscribe({
-        next: () => {
-          console.log('Profile picture updated successfully');
-          this.user!.profile_pic = URL.createObjectURL(file); // Actualiza localmente la imagen
-        },
-        error: (err) => console.error('Error updating profile picture:', err),
+        next: () => console.log('✅ Profile picture updated successfully'),
+        error: (err) =>
+          console.error('❌ Error updating profile picture:', err),
       });
     } else {
-      console.error('No file selected or User ID is missing');
+      console.error('🚨 No file selected or User ID is missing');
     }
   }
 

@@ -22,16 +22,15 @@ export class BoardServiceService {
   createBoard(
     name: string,
     user: User,
-    parentBoardId?: string,
-    tasks?: Task[]
+    parentBoardId?: string
   ): Observable<any> {
-    return this.http.post<any>(this.apiUrl, {
+    return this.http.post<any>(`${this.apiUrl}`, {
       name,
-      userId: user.id,
-      parentBoardId,
-      tasks,
+      user_id: user.id, 
+      parent_board_id: parentBoardId ?? null,
     });
   }
+
   getTasksByBoard(userId: string, boardId: string): Observable<any[]> {
     return this.http.get<any[]>(
       `${this.apiUrl}/user/${userId}/board/${boardId}`

@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TaskServiceService } from '../services/task-service.service';
-import { BoardServiceService } from '../services/board-service.service';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { TaskServiceService } from '../../services/task-service.service';
+import { BoardServiceService } from '../../services/board-service.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { User } from '../models/models';
-import { UserService } from '../services/users.service';
+import { User } from '../../models/models';
+import { UserService } from '../../services/users.service';
 import { Router } from '@angular/router';
-import { SocketService } from '../services/socket.service';
+import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
 import {
   CdkDragDrop,
@@ -24,14 +24,18 @@ import {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
+  dropdownOpen = false;
+  selectedUser: string = '';
+  selectedUserId: string | null = null;
   connectedUsers: any[] = [];
   disconnectedUsers: any[] = [];
   showBoardForm: boolean = false;
   token: string = '';
+  users: User[] | null = [];
   user: User | null = null;
   tasks: any[] = [];
   boards: any[] = [];
-  selectedBoardId: string | null = null; // ID del tablero seleccionado
+  selectedBoardId: string | null = null;
   newTask = {
     title: '',
     description: '',
@@ -50,19 +54,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private taskService: TaskServiceService,
     private boardService: BoardServiceService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-
     this.getUserFromSessionStorage().then((user) => {
       if (!user) {
         console.error('User not found. Redirecting to login...');
         this.router.navigate(['login']);
       } else {
         this.user = user;
+        console.log('🔍 Profile Picture URL:', this.user?.profile_pic);
+
         this.loadBoards();
         this.loadTasks();
+        this.loadUsers();
 
         this.socketService.onEvent('userConnected', (userConnected: any) => {
           this.connectedUsers.push(userConnected);
@@ -115,14 +122,21 @@ export class HomeComponent implements OnInit, OnDestroy {
       );
 
       const task = event.container.data[event.currentIndex];
-      console.log('Updated task:', task);
-
-      // Asignamos el nuevo estado basado en el contenedor
+      if (event.container.id === 'new') {
+        task.assigned_user_id = null;
+        task.assigned_username = 'Unassigned';
+        this.taskService.assignTaskToUser(task.id, null).subscribe({
+          next: (updatedTask) => {},
+          error: (err) => console.error('Error unassigning task:', err),
+        });
+      }
       task.task_status = this.getStatusFromColumn(event.container.id);
-
-      // Actualizamos el estado de la tarea en el servidor y localmente
       this.updateTaskStatus(task.id, task.task_status);
     }
+  }
+
+  trackByTaskId(index: number, task: any): string {
+    return task.id;
   }
 
   updateTaskStatus(taskId: string, task_status: string) {
@@ -134,12 +148,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Realiza la actualización del estado de la tarea en el servidor
     if (task_status === 'IN_PROGRESS') {
       this.taskService.toggleInProgressTask(taskId, userId, boardId).subscribe({
         next: (data) => {
-          console.log('Task status updated:', data);
-          // Actualiza la tarea localmente después de la respuesta
           this.updateTaskLocally(taskId, data);
         },
         error: (err) => console.error('Error updating task status:', err),
@@ -147,8 +158,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     } else if (task_status === 'ASSIGNED') {
       this.taskService.toggleAssignedTask(taskId, userId, boardId).subscribe({
         next: (data) => {
-          console.log('Task assigned:', data);
-          // Actualiza la tarea localmente después de la respuesta
           this.updateTaskLocally(taskId, data);
         },
         error: (err) => console.error('Error updating task status:', err),
@@ -156,21 +165,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     } else if (task_status === 'COMPLETED') {
       this.taskService.toggleCompletedTask(taskId, userId, boardId).subscribe({
         next: (data) => {
-          console.log('Task completed:', data);
-          // Actualiza la tarea localmente después de la respuesta
           this.updateTaskLocally(taskId, data);
         },
         error: (err) => console.error('Error updating task status:', err),
       });
-  }
+    }
   }
 
-  // Método para actualizar la tarea en la lista local después de la respuesta del servidor
   updateTaskLocally(taskId: string, updatedTaskData: any) {
     const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
     if (taskIndex !== -1) {
-      this.tasks[taskIndex] = updatedTaskData;
-      console.log('Task updated locally:', updatedTaskData);
+      this.tasks[taskIndex] = {
+        ...this.tasks[taskIndex], // 🔥 Mantén los datos previos
+        ...updatedTaskData, // 🔥 Aplica los cambios del backend
+        assigned_username: this.getUsernameById(
+          updatedTaskData.assigned_user_id
+        ),
+      };
+      this.cdr.detectChanges(); // 🔥 Forzamos Angular a detectar el cambio
     } else {
       console.error('Task not found in the local list.');
     }
@@ -179,7 +191,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   getTasksByStatus(status: string): any[] {
     return this.tasks.filter((task) => task.task_status === status);
   }
-  // Obtén el usuario desde el sessionStorage
   getUserFromSessionStorage(): Promise<User | null> {
     const userId = sessionStorage.getItem('userId');
 
@@ -193,11 +204,13 @@ export class HomeComponent implements OnInit, OnDestroy {
               fullname: user.fullname || '',
               email: user.email || '',
               password: '',
-              profile_pic: '',
+              profile_pic: user.profile_pic || '/img/default2.jpg', // 👈 Asigna la imagen correctamente
             };
             resolve(userData);
+
             sessionStorage.setItem('username', user.username);
             sessionStorage.setItem('fullname', user.fullname);
+            sessionStorage.setItem('profilePic', userData.profile_pic); // 👈 Guarda la imagen en sessionStorage también
           },
           error: () => resolve(null),
         });
@@ -206,31 +219,41 @@ export class HomeComponent implements OnInit, OnDestroy {
     return Promise.resolve(null);
   }
 
-  // Carga las tareas desde el servicio
   loadTasks(): void {
     const boardId = this.selectedBoardId;
     if (this.user && boardId) {
       this.taskService.getTasksByUserAndBoard(this.user.id, boardId).subscribe({
         next: (tasks) => {
-          this.tasks = tasks; // Asigna las tareas al array tasks
-          console.log('Tareas cargadas:', this.tasks);
+          if (!this.users || this.users.length === 0) {
+            this.loadUsers();
+          }
+          this.tasks = tasks.map((task) => {
+            const assignedUser = this.users?.find(
+              (user) => user.id === task.assigned_user_id
+            );
+            return {
+              ...task,
+              assigned_username: assignedUser
+                ? assignedUser.username
+                : 'Unassigned',
+            };
+          });
         },
         error: (err) => console.error('Error al cargar tareas:', err),
       });
     }
   }
 
-  // Carga los tableros del usuario
   loadBoards(): void {
     if (this.user) {
       this.boardService.getBoards(this.user.id).subscribe({
         next: (data) => {
           this.boards = data;
-        if (this.boards.length > 0) {
+          if (this.boards.length > 0) {
             const savedBoardId = sessionStorage.getItem('boardId');
-            this.selectedBoardId = savedBoardId || this.boards[0].id; // Selecciona el primer tablero si no hay uno guardado
+            this.selectedBoardId = savedBoardId || this.boards[0].id;
             sessionStorage.setItem('boardId', this.selectedBoardId || '');
-            this.loadTasks(); // Carga las tareas del tablero seleccionado
+            this.loadTasks();
           } else {
             console.warn('No boards found for this user.');
           }
@@ -240,14 +263,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Maneja la selección del board
-    selectBoard(event: Event): void {
-      const boardId = (event.target as HTMLSelectElement).value;
-      this.selectedBoardId = boardId;
-      sessionStorage.setItem('boardId', boardId);
-      this.loadTasks(); // Recarga las tareas del board seleccionado
-  // Agrega una nueva tarea al board seleccionado
-    }
+  selectBoard(event: Event): void {
+    const boardId = (event.target as HTMLSelectElement).value;
+    this.selectedBoardId = boardId;
+    sessionStorage.setItem('boardId', boardId);
+    this.loadTasks();
+  }
 
   addTask(): void {
     const userId = sessionStorage.getItem('userId');
@@ -258,37 +279,33 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.error('User ID or Board ID not found.');
       return;
     }
-
-    console.log('Adding task to board:', boardId); // Depuración
-
-    this.newTask.board_id = boardId; // Asignar el ID del tablero seleccionado
+    this.newTask.board_id = boardId;
     this.newTask.task_status = 'NEW';
 
     if (this.newTask.title && this.newTask.description) {
-    this.taskService
+      this.taskService
         .addTask(
-        this.newTask.title,
-        this.newTask.description,
+          this.newTask.title,
+          this.newTask.description,
           userId,
           boardId,
-        this.newTask.task_status
-      )
+          this.newTask.task_status
+        )
         .subscribe({
           next: () => {
             this.tasks.push(this.newTask);
-            this.loadTasks(); // Recarga las tareas del tablero actual
-        this.newTask = {
-          title: '',
-          description: '',
-          board_id: '',
+            this.loadTasks();
+            this.newTask = {
+              title: '',
+              description: '',
+              board_id: '',
               task_status: '',
-          completed: false,
-        };
-        this.showTaskFormNew = false;
+              completed: false,
+            };
+            this.showTaskFormNew = false;
           },
           error: (err) => console.error('Error adding task:', err),
-      });
-
+        });
     }
   }
 
@@ -303,20 +320,19 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.newBoard.name && user) {
           this.boardService.createBoard(this.newBoard.name, user).subscribe({
             next: (board) => {
-              this.boards.push(board); // Agrega el nuevo tablero al array boards
+              this.boards.push(board);
               this.newBoard = {
                 name: '',
                 user_id: '',
               };
-        this.showBoardForm = false;
-              console.log('Tablero creado:', board);
+              this.showBoardForm = false;
             },
             error: (err) => console.error('Error creating board:', err),
           });
         }
       },
       error: (err) => console.error('Error fetching user:', err),
-      });
+    });
   }
 
   toggleBoardForm() {
@@ -334,7 +350,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   toggleCompletedTask(taskId: string): void {
-    const userId = this.user?.id || ''; // Asegúrate de que el usuario esté definido
+    const userId = this.user?.id || '';
     const boardId = this.selectedBoardId;
 
     if (!userId || !boardId) {
@@ -343,21 +359,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     this.taskService.toggleCompletedTask(taskId, userId, boardId).subscribe({
-      next: (updatedTask) => {
-        // Actualiza la tarea en el array de tareas
-        const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
-        if (taskIndex !== -1) {
-          this.tasks[taskIndex] = updatedTask;
-          console.log('Task updated successfully:', updatedTask);
-        }
+      next: () => {
+        console.log('✅ Task moved to COMPLETED.');
+        this.loadTasks(); // Recargar tareas en el frontend
       },
-      error: (err) => console.error('Error updating task status:', err),
+      error: (err) => console.error('❌ Error updating task status:', err),
     });
-    this.loadTasks();
   }
 
   toggleInProgressTask(taskId: string): void {
-    const userId = this.user?.id || ''; // Asegúrate de que el usuario esté definido
+    const userId = this.user?.id || '';
     const boardId = this.selectedBoardId;
     if (!userId || !boardId) {
       console.error('User ID or Board ID not found.');
@@ -365,19 +376,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     this.taskService.toggleInProgressTask(taskId, userId, boardId).subscribe({
       next: (updatedTask) => {
-        // Actualiza la tarea en el array de tareas
         const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
         if (taskIndex !== -1) {
           this.tasks[taskIndex] = updatedTask;
-          console.log('Task updated successfully:', updatedTask);
+          this.tasks = [...this.tasks];
         }
+        // this.loadTasks();
+        this.cdr.detectChanges();
       },
       error: (err) => console.error('Error updating task status:', err),
     });
-    this.loadTasks();
   }
   toggleAssignedTask(taskId: string): void {
-    const userId = this.user?.id || ''; // Asegúrate de que el usuario esté definido
+    const userId = this.user?.id || '';
     const boardId = this.selectedBoardId;
     if (!userId || !boardId) {
       console.error('User ID or Board ID not found.');
@@ -385,16 +396,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     this.taskService.toggleAssignedTask(taskId, userId, boardId).subscribe({
       next: (updatedTask) => {
-        // Actualiza la tarea en el array de tareas
         const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
         if (taskIndex !== -1) {
           this.tasks[taskIndex] = updatedTask;
-          console.log('Task updated successfully:', updatedTask);
+          this.tasks = [...this.tasks];
         }
+        // this.loadTasks();
+        this.cdr.detectChanges(); // 🔥 Forzamos Angular a detectar el cambio
       },
       error: (err) => console.error('Error updating task status:', err),
     });
-    this.loadTasks();
   }
 
   getStatusFromColumn(columnId: string): string {
@@ -418,12 +429,61 @@ export class HomeComponent implements OnInit, OnDestroy {
         const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
         if (taskIndex !== -1) {
           this.tasks[taskIndex] = deletedTask;
-          console.log('Task deleted successfully:', deletedTask);
         }
       },
       error: (err) => console.error('Error while deleting task:', err),
     });
     this.loadTasks();
+  }
+
+  loadUsers(): void {
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        this.users = users.map((user: { profile_pic: any; }) => ({
+          ...user,
+          profile_pic: user.profile_pic || '/img/default2.jpg', // Si no tiene foto, usa una por defecto
+        }));
+      },
+      error: (err) => console.error('Error fetching users:', err),
+    });
+  }
+
+  assignTaskToUser(taskId: string, event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const userId = target?.value || null;
+
+    if (userId === 'null') {
+      console.warn('Invalid userId detected, resetting to null.');
+      return;
+    }
+
+    this.taskService.assignTaskToUser(taskId, userId).subscribe({
+      next: (updatedTask) => {
+        const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
+        if (taskIndex !== -1) {
+          const assignedUser = this.users?.find((user) => user.id === userId);
+
+          this.tasks[taskIndex] = {
+            ...this.tasks[taskIndex],
+            assigned_user_id: updatedTask.assigned_user_id ?? null,
+            assigned_username: assignedUser
+              ? assignedUser.username
+              : 'Unassigned',
+            assigned_profile_pic: assignedUser
+              ? assignedUser.profile_pic
+              : '/img/default2.jpg', // ✅ Agregamos la foto
+          };
+
+          this.loadTasks();
+        }
+      },
+      error: (err) => console.error('Error assigning task:', err),
+    });
+  }
+
+  getUsernameById(userId: string): string {
+    const user = this.users?.find((u) => u.id === userId);
+    return user ? user.username : 'Unassigned';
   }
 
   ngOnDestroy() {

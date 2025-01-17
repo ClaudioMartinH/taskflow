@@ -1,15 +1,15 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { HomeComponent } from './home/home.component';
-import { ProfileComponent } from './profile/profile.component';
-import { CreateBoardComponent } from './create-board/create-board.component';
-import { LandingComponent } from './landing/landing.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { HomeComponent } from './components/home/home.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { CreateBoardComponent } from './components/create-board/create-board.component';
+import { LandingComponent } from './components/landing/landing.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: LandingComponent
+    component: LandingComponent,
   },
   {
     path: 'login',
@@ -29,7 +29,7 @@ export const routes: Routes = [
   },
   {
     path: 'board',
-    component: CreateBoardComponent
+    component: CreateBoardComponent,
   },
   {
     path: 'logout',

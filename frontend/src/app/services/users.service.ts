@@ -19,7 +19,7 @@ export class UserService {
     username: string,
     fullname: string,
     email: string,
-    password: string,
+    password: string
   ): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}`, {
       id,
@@ -32,9 +32,14 @@ export class UserService {
   deleteUser(userId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${userId}`);
   }
-  updateProfilePicture(userId: string, profile_pic: FormData): Observable<any> {
-    return this.http.put(`${this.apiUrl}/profile-pic/${userId}`, {
-      profile_pic,
-    });
+  updateProfilePicture(userId: string, formData: FormData): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/profile-pic/${userId}`,
+      formData
+    );
+  }
+
+  getUsers(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/all`);
   }
 }

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { User } from '../models/models';
-import { BoardServiceService } from '../services/board-service.service';
-import { UserService } from '../services/users.service';
+import { User } from '../../models/models';
+import { BoardServiceService } from '../../services/board-service.service';
+import { UserService } from '../../services/users.service';
 
 @Component({
   selector: 'app-create-board',
@@ -35,6 +35,7 @@ export class CreateBoardComponent {
         this.router.navigate(['login']);
       } else {
         this.user = user;
+        this.user.id = user.id;
       }
     });
   }
@@ -72,8 +73,21 @@ export class CreateBoardComponent {
       return;
     }
 
-    this.boardService.createBoard(this.name, this.user).subscribe((board) => {
-      this.router.navigate(['home']);
+    if (!this.user?.id) {
+      console.error('User ID is missing');
+      alert('User not found, please log in again.');
+      return;
+    }
+
+    this.boardService.createBoard(this.name, this.user).subscribe({
+      next: (board) => {
+        console.log('Board created successfully:', board);
+        this.router.navigate(['home']);
+      },
+      error: (err) => {
+        console.error('Error creating board:', err);
+        alert('Failed to create board');
+      },
     });
   }
 

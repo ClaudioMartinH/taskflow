@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { User } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
@@ -38,11 +39,16 @@ export class AuthService {
   }
 
   register(
-    username: string,
-    fullname: string,
-    email: string,
-    password: string
+   formData: FormData
   ): Observable<any> {
+    const username = formData.get('username') as string;
+    const fullname = formData.get('fullname') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    if (formData.get('profilePic') as string) {
+      formData.delete('profilePic');
+      formData.append('profile_pic', formData.get('profilePic') as File);
+    }
     return this.http.post<any>(`${this.registerUrl}/create`, {
       username,
       fullname,

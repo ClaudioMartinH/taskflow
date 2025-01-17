@@ -14,6 +14,7 @@ taskRouter.post('/complete/:taskId', taskController.toggleComplete);
 taskRouter.post('/assign/:taskId', taskController.toggleAssigned);
 taskRouter.post('/inprogress/:taskId', taskController.toggleInProgress); 
 taskRouter.put('/:taskId/status', taskController.updateTaskStatus);
+taskRouter.patch('/assign/:taskId/:userId', taskController.assignTaskToUser);
 taskRouter.delete('/:userId/:taskId', taskController.deleteTask); 
 
 

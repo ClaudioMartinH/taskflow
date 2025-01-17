@@ -1,0 +1,322 @@
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <!-- Toast para usuarios conectados -->
+  <div *ngFor="let user of connectedUsers" class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">{{user.username}} Connected</strong>
+      <small>Just now</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      🚀 {{ user.username }} has connected!
+    </div>
+  </div>
+
+  <!-- Toast para usuarios desconectados -->
+  <div *ngFor="let user of disconnectedUsers" class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">User Disconnected</strong>
+      <small>Just now</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      ❌ {{ user.username }} has disconnected!
+    </div>
+  </div>
+</div>
+
+
+<nav class="navbar bg-dark border-bottom border-body py-0" data-bs-theme="dark">
+  <ul class="nav justify-content-end">
+    <div>
+      <ul class="nav justify-content-end">
+        <img
+          *ngIf="user?.profile_pic"
+          [src]="user?.profile_pic || '/img/default2.jpg'"
+          alt="Profile Picture"
+          width="40" height="40" style="border-radius: 50%; object-fit: cover;"
+        />
+        <li class="nav-item">
+          <a class="nav-link">Welcome {{ user?.username }}</a>
+        </li>
+      </ul>
+    </div>
+   
+  </ul>
+
+  <form class="d-flex me-5 m-2">
+    <label class="me-2 text-white m-2">Select Board:</label>
+    <select
+      class="form-select form-select me-2"
+      style="height: fit-content; width: fit-content"
+      (change)="selectBoard($event)"
+      [(ngModel)]="selectedBoardId"
+      name="selectedBoardId"
+    >
+      <option *ngFor="let board of boards" [value]="board.id">
+        {{ board.name }}
+      </option>
+    </select>
+  </form>
+   <ul class="nav justify-content-end">
+     <li class="nav-item">
+      <a class="nav-link active ms-3" aria-current="page" href="profile"
+        >my profile</a
+      >
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="logout">logout</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="board">new board</a>
+    </li>
+   </ul>
+</nav>
+
+<main class="dashboard" cdkDropListGroup>
+  <!-- Column: New -->
+  <div
+    class="column"
+    cdkDropList
+    id="new"
+    [cdkDropListData]="getTasksByStatus('NEW')"
+    (cdkDropListDropped)="drop($event)"
+  >
+    <h1 class="h3 mb-3 fw-normal">New</h1>
+    <ng-container
+      *ngFor="let task of getTasksByStatus('NEW'); trackBy: trackByTaskId"
+    >
+      <div class="card-new" cdkDrag>
+        <h4>{{ task.title }}</h4>
+        <button class="erase" (click)="deleteTask(user?.id ?? '', task.id)">
+          X
+        </button>
+        <p>{{ task.description }}</p>
+        <p
+          *ngIf="task.assigned_username"
+          class="assigned-user"
+          style="font-size: x-small"
+        >
+          <strong>Assigned to:</strong> {{ task.assigned_username }}
+        </p>
+        <div class="btn-container">
+          <select
+            class="custom-assign"
+            [ngModel]="task.assigned_user_id"
+            (change)="assignTaskToUser(task.id, $event)"
+          >
+            <option value="">Assign to</option>
+            <option *ngFor="let user of users" [value]="user.id">
+              {{ user.username }}
+            </option>
+          </select>
+          <button
+            class="custom-inprogress"
+            (click)="toggleInProgressTask(task.id)"
+          >
+            In process
+          </button>
+          <button
+            class="custom-complete"
+            (click)="toggleCompletedTask(task.id)"
+          >
+            Complete
+          </button>
+        </div>
+      </div>
+    </ng-container>
+    <button
+      class="btn btn-outline-primary mb-3"
+      type="button"
+      (click)="showTaskFormNew = !showTaskFormNew"
+    >
+      Add Task
+    </button>
+    <form *ngIf="showTaskFormNew" (submit)="addTask()">
+      <input
+        class="form-control mb-2"
+        type="text"
+        placeholder="Task Title"
+        [(ngModel)]="newTask.title"
+        name="title"
+      />
+      <textarea
+        class="form-control mb-2"
+        placeholder="Task Description"
+        [(ngModel)]="newTask.description"
+        name="description"
+      ></textarea>
+      <button class="btn btn-outline-success w-100" type="submit">
+        Save Task
+      </button>
+    </form>
+  </div>
+
+  <!-- Column: Assigned -->
+  <div
+    class="column"
+    cdkDropList
+    id="assigned"
+    [cdkDropListData]="getTasksByStatus('ASSIGNED')"
+    (cdkDropListDropped)="drop($event)"
+  >
+    <h1 class="h3 mb-3 fw-normal">Assigned</h1>
+    <ng-container *ngFor="let task of getTasksByStatus('ASSIGNED')">
+      <div class="card-assigned" cdkDrag>
+        <h4>{{ task.title }}</h4>
+        <button class="erase" (click)="deleteTask(user?.id ?? '', task.id)">
+          X
+        </button>
+        <p>{{ task.description }}</p>
+        <p *ngIf="task.assigned_username" class="assigned-user" style="font-size: x-small">
+  <strong>Assigned to:</strong>
+  <img
+    *ngIf="task.assigned_profile_pic"
+    [src]="task.assigned_profile_pic"
+    alt="User Profile Picture"
+    width="24" height="24"
+    style="border-radius: 50%; object-fit: cover; margin-right: 5px;"
+  />
+  {{ task.assigned_username }}
+</p>
+
+        <div class="btn-container">
+          <select
+            class="custom-assign"
+            [ngModel]="task.assigned_user_id"
+            (change)="assignTaskToUser(task.id, $event)"
+          >
+            <option value="">Assign to</option>
+            <option *ngFor="let user of users" [value]="user.id">
+              {{ user.username }}
+            </option>
+          </select>
+          <button
+            class="custom-inprogress"
+            (click)="toggleInProgressTask(task.id)"
+          >
+            In process
+          </button>
+          <button
+            class="custom-complete"
+            (click)="toggleCompletedTask(task.id)"
+          >
+            Completed
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Column: In Process -->
+  <div
+    class="column"
+    cdkDropList
+    id="inProgress"
+    [cdkDropListData]="getTasksByStatus('IN_PROGRESS')"
+    (cdkDropListDropped)="drop($event)"
+  >
+    <h1 class="h3 mb-3 fw-normal">In Process</h1>
+    <ng-container *ngFor="let task of getTasksByStatus('IN_PROGRESS')">
+      <div class="card-inprocess" cdkDrag>
+        <h4>{{ task.title }}</h4>
+        <button class="erase" (click)="deleteTask(user?.id ?? '', task.id)">
+          X
+        </button>
+        <p>{{ task.description }}</p>
+        <p
+          *ngIf="task.assigned_username"
+          class="assigned-user"
+          style="font-size: x-small"
+        >
+          <strong>Assigned to:</strong> {{ task.assigned_username }}
+        </p>
+        <p
+          *ngIf="!task.assigned_username"
+          class="assigned-user"
+          style="font-size: x-small"
+        >
+          <strong>Assigned to:</strong> Unassigned
+        </p>
+        <div class="btn-container">
+          <select
+            class="custom-assign"
+            [ngModel]="task.assigned_user_id"
+            (change)="assignTaskToUser(task.id, $event)"
+          >
+            <option value="">Assign to</option>
+            <option *ngFor="let user of users" [value]="user.id">
+              {{ user.username }}
+            </option>
+          </select>
+          <button
+            class="custom-inprogress"
+            (click)="toggleInProgressTask(task.id)"
+          >
+            In process
+          </button>
+          <button
+            class="custom-complete"
+            (click)="toggleCompletedTask(task.id)"
+          >
+            Completed
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Column: Done -->
+  <div
+    class="column"
+    cdkDropList
+    id="completed"
+    [cdkDropListData]="getTasksByStatus('COMPLETED')"
+    (cdkDropListDropped)="drop($event)"
+  >
+    <h1 class="h3 mb-3 fw-normal">Completed</h1>
+    <ng-container *ngFor="let task of getTasksByStatus('COMPLETED')">
+      <div class="card-done" cdkDrag>
+        <h4>{{ task.title }}</h4>
+        <button class="erase" (click)="deleteTask(user?.id ?? '', task.id)">
+          X
+        </button>
+        <p>{{ task.description }}</p>
+        <p
+          *ngIf="task.assigned_username"
+          class="assigned-user"
+          style="font-size: x-small"
+        >
+          <strong>Task completed by:</strong> {{ task.assigned_username }}
+        </p>
+      </div>
+    </ng-container>
+  </div>
+</main>
+<footer>
+  <div class="nav-text">2025 All rights reserved || Claudio Martin Herranz</div>
+  <ul class="nav justify-content-end me-5">
+    <li class="nav-item">
+      <a
+        class="nav-link active ms-3"
+        aria-current="page"
+        href="https://github.com/ClaudioMartinH"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="https://x.com/martinherranzc">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        href="https://www.linkedin.com/in/claudio-martin-herranz"
+      >
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  </ul>
+</footer>

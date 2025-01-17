@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../services/auth-service.service';
+import { AuthService } from '../../services/auth-service.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -19,10 +19,16 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit(): void {
+    if (this.rememberMe) {
+      const rememberMeCookie = new Date();
+      rememberMeCookie.setMinutes(rememberMeCookie.getMinutes() + 30);
+      document.cookie =
+        'rememberMe=true; expires=' + rememberMeCookie.toUTCString();
+    }
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
         console.log('Login exitoso');
-        this.router.navigate(['home']); // Redirige al perfil
+        this.router.navigate(['home']);
       },
       error: (err) => {
         console.error('Error de login:', err);

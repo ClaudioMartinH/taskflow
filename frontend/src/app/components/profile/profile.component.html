@@ -45,12 +45,7 @@
       <div class="row">
         <div class="col-md-4">
           <div class="profile-img">
-            <img
-              [src]="user.profile_pic || '/img/default2.jpg'"
-              alt="Profile Picture"
-              class="img-thumbnail"
-              style="width: 150px; height: 150px"
-            />
+           <img *ngIf="user?.profile_pic" [src]="user.profile_pic || '/img/default2.jpg'" alt="Profile Picture" />
             <div class="file btn btn-lg btn-primary">
               Change Photo
              <input type="file" name="profile-pic" (change)="onFileSelected($event)" />
@@ -64,7 +59,7 @@
       <div class="row">
         <div class="col-md-4">
           <div class="profile-work">
-            <p>USER TASK & BOARD INFO</p>
+            <p>TASK & BOARD INFO</p>
             <div>
               <p><strong>Active Boards</strong></p>
               <ul class="ul-profile">
@@ -85,7 +80,7 @@
                 </ul>
               </div>
               <ng-template #noTasks>
-                <p>No hay tareas pendientes.</p>
+                <p>No hay tareas completadas.</p>
               </ng-template>
             </div>
             <div>
@@ -103,7 +98,7 @@
                 </ul>
               </div>
               <ng-template #noTasks>
-                <p>No hay tareas completadas.</p>
+                <p>No hay tareas pendientes.</p>
               </ng-template>
             </div>
           </div>

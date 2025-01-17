@@ -9,14 +9,12 @@ import { Task } from '../models/models';
 export class TaskServiceService {
   private apiUrl = 'http://localhost:5050/api/v1/tasks';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  // Obtiene todas las tareas del servidor
   getTasks(): Observable<Task[]> {
     return this.http.get<Task[]>(this.apiUrl);
   }
 
-  // Obtiene las tareas completadas
   getCompletedTasks(): Observable<Task[]> {
     return this.http
       .get<Task[]>(this.apiUrl)
@@ -25,7 +23,6 @@ export class TaskServiceService {
       );
   }
 
-  // Obtiene las tareas pendientes
   getPendingTasks(): Observable<Task[]> {
     return this.http
       .get<Task[]>(this.apiUrl)
@@ -34,55 +31,65 @@ export class TaskServiceService {
       );
   }
 
-  // Obtener una tarea por su ID
   getTaskById(taskId: string): Observable<Task> {
     return this.http.get<Task>(`${this.apiUrl}/${taskId}`);
   }
 
-  // Obtiene tareas por usuario y tablero
   getTasksByUserAndBoard(userId: string, boardId: string): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/board/${boardId}`);
   }
 
-  // Añade una nueva tarea
-  addTask(title: string, description: string, userId: string, boardId: string, task_status: string) {
+  addTask(
+    title: string,
+    description: string,
+    userId: string,
+    boardId: string,
+    task_status: string
+  ) {
     return this.http.post<Task>(this.apiUrl, {
       title,
       description,
       user_id: userId,
       board_id: boardId,
-      task_status
+      task_status,
     });
   }
 
   toggleCompletedTask(taskId: string, userId: string, boardId: string) {
     return this.http.post<Task>(`${this.apiUrl}/complete/${taskId}`, {
       user_id: userId,
-      board_id: boardId
+      board_id: boardId,
     });
   }
 
   toggleAssignedTask(taskId: string, userId: string, boardId: string) {
     return this.http.post<Task>(`${this.apiUrl}/assign/${taskId}`, {
       user_id: userId,
-      board_id: boardId
+      board_id: boardId,
     });
   }
   toggleInProgressTask(taskId: string, userId: string, boardId: string) {
     return this.http.post<Task>(`${this.apiUrl}/inprogress/${taskId}`, {
       user_id: userId,
-      board_id: boardId
+      board_id: boardId,
     });
   }
 
   deleteTask(userId: string, taskId: string) {
-    return this.http.delete<Task>(`${this.apiUrl}/${userId}/${taskId}`)
+    return this.http.delete<Task>(`${this.apiUrl}/${userId}/${taskId}`);
   }
   updateTaskStatus(taskId: string, task_status: string) {
-    return this.http.put<Task>(`${this.apiUrl}/${taskId}/status`, { task_status }, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json'
-      }),
-    })
+    return this.http.put<Task>(
+      `${this.apiUrl}/${taskId}/status`,
+      { task_status },
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+        }),
+      }
+    );
+  }
+  assignTaskToUser(taskId: string, userId: string | null): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/assign/${taskId}/${userId}`, null);
   }
 }

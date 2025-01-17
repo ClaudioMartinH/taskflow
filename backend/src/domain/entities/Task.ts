@@ -9,6 +9,8 @@ export class Task {
   task_status: TASK_STATUS;
   completed: boolean;
   assigned_user_id?: string;
+  assigned_username?: string;
+  assigned_profile_pic?: string
 
   constructor(
     id: string,
@@ -19,6 +21,8 @@ export class Task {
     task_status: TASK_STATUS = TASK_STATUS.NEW, 
     completed: boolean = false,
     assigned_user_id?: string,
+    assigned_username?: string,
+    assigned_profile_pic?: string,
   ) {
     this.id = id;
     this.title = title;
@@ -28,6 +32,8 @@ export class Task {
     this.task_status = task_status;
     this.completed = completed;
     this.assigned_user_id = assigned_user_id;
+    this.assigned_username = assigned_username;
+    this.assigned_profile_pic = assigned_profile_pic;
   }
 
   public toggleComplete() {
