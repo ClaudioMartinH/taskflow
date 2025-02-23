@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY . .
 
-COPY .env /.env
+COPY .env.example /.env
 
 RUN npm run build
 

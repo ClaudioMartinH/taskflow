@@ -430,16 +430,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (taskIndex !== -1) {
           this.tasks[taskIndex] = deletedTask;
         }
+        this.loadTasks();
       },
       error: (err) => console.error('Error while deleting task:', err),
     });
-    this.loadTasks();
   }
 
   loadUsers(): void {
     this.userService.getUsers().subscribe({
       next: (users) => {
-        this.users = users.map((user: { profile_pic: any; }) => ({
+        this.users = users.map((user: { profile_pic: any }) => ({
           ...user,
           profile_pic: user.profile_pic || '/img/default2.jpg', // Si no tiene foto, usa una por defecto
         }));

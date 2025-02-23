@@ -62,7 +62,10 @@ func StartRabbitMQListener() error {
 	}()
 
 	// Mantener la conexión activa
-	select {}
+	// Espera por un canal para recibir los mensajes
+	<-ch.NotifyClose(make(chan *amqp.Error))
+	log.Println("Conexión cerrada con RabbitMQ")
+	return nil
 }
 
 func processNotification(notification NotificationMessage) {

@@ -5,7 +5,7 @@
 ### 📌 Description
 TaskBoard is a web-based project management application that allows users to create, assign, and track tasks in an organized way. The system includes real-time updates via WebSockets, user authentication, and a clean interface for managing boards and tasks efficiently.
 
-![TaskBoard Screenshot](path/to/screenshot.png) <!-- Replace with actual screenshot -->
+![TaskBoard Screenshot](/demo.gif) <!-- Replace with actual screenshot -->
 
 ### 🎥 Demo
 Watch a demo of TaskBoard in action:
@@ -18,8 +18,8 @@ Watch a demo of TaskBoard in action:
 
 ### 1️⃣ **Clone the Repository**
 ```sh
- git clone https://github.com/your-repo/taskboard.git
- cd taskboard
+ git clone https://github.com/ClaudioMartinH/taskflow.git
+ cd taskflow
 ```
 
 ### 2️⃣ **Setup Environment Variables**

@@ -9,10 +9,10 @@ export class AuthrepositoryImpl implements AuthRepository {
   constructor(knexInstance: Knex) {
     this.knex = knexInstance;
   }
-  async login(email: string, password: string): Promise<{ token: string; user: { id: number; password: string } } | null> {
+  async login(email: string, password: string): Promise<{ token: string; user: { id: string; password: string } } | null> {
     const user = await this.knex("users")
       .where({ email })
-      .first<{ id: number; password: string }>();
+      .first<{ id: string; password: string }>();
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return null;
     }

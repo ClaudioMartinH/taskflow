@@ -87,8 +87,6 @@ export class UserController {
   });
 
   updateProfilePicture = handleRequest(async (req, res) => {
-    console.log('📥 File received:', req.file);
-    console.log('📦 Request Body:', req.body);
 
     if (!req.file) {
       sendResponse(res, STATUS.BAD_REQUEST, {
@@ -99,9 +97,7 @@ export class UserController {
 
     const { id } = req.params;
     const profilePicUrl = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
-
-    console.log(`✅ Image uploaded successfully: ${profilePicUrl}`);
-
+    
     const updatedUser = await userService.changeProfilePicture(
       id,
       profilePicUrl,

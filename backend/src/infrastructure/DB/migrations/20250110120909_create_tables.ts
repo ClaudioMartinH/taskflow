@@ -32,8 +32,10 @@ export async function up(knex: Knex): Promise<void> {
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
       board_id UUID REFERENCES boards(id) ON DELETE CASCADE,
       task_status task_status_enum NOT NULL DEFAULT 'NEW',
-      completed BOOLEAN NOT NULL,
-      assigned_user_id UUID REFERENCES users(id) ON DELETE SET NULL
+      completed BOOLEAN NOT NULL DEFAULT FALSE,
+      assigned_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      assigned_username VARCHAR(255),
+      assigned_profile_pic VARCHAR(255)
  );
   `);
   // eslint-disable-next-line no-console
