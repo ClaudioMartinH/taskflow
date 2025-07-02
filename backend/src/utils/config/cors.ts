@@ -1,5 +1,5 @@
 export const options = {
-  origin: 'http://localhost:4200',
+  origin: ['http://localhost:4200', 'https://taskflow.martinherranzc.es','https://www.taskflow.martinherranzc.es'],
   credentials: true,
   allowedHeaders: [
     'Origin',
