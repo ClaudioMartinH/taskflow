@@ -195,10 +195,10 @@ export class ProfileComponent implements OnInit {
       const formData = new FormData();
       formData.append('profile_pic', file);
 
-      // 📌 DEBUG: Ver qué se está enviando
-      for (const pair of formData.entries()) {
-        console.log(`📦 FormData: ${pair[0]}, ${pair[1]}`);
-      }
+      // // 📌 DEBUG: Ver qué se está enviando
+      // for (const pair of formData.entries()) {
+      //   console.log(`📦 FormData: ${pair[0]}, ${pair[1]}`);
+      // }
 
       this.userService.updateProfilePicture(this.user.id, formData).subscribe({
         next: () => console.log('✅ Profile picture updated successfully'),

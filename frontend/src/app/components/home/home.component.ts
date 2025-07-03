@@ -102,10 +102,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   drop(event: CdkDragDrop<any[]>) {
-    console.log('Previous container:', event.previousContainer);
-    console.log('Current container:', event.container);
-    console.log('Previous index:', event.previousIndex);
-    console.log('Current index:', event.currentIndex);
+    // console.log('Previous container:', event.previousContainer);
+    // console.log('Current container:', event.container);
+    // console.log('Previous index:', event.previousIndex);
+    // console.log('Current index:', event.currentIndex);
 
     if (event.previousContainer === event.container) {
       moveItemInArray(
