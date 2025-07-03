@@ -7,7 +7,7 @@ import { Task, User } from '../models/models';
   providedIn: 'root',
 })
 export class BoardServiceService {
-  private apiUrl = 'http://localhost:5050/api/v1/boards'; // URL del endpoint de login
+  private apiUrl = 'https://taskflow.martinherranzc.es/api/v1/boards'; // URL del endpoint de login
 
   constructor(private http: HttpClient) {}
 
@@ -26,7 +26,7 @@ export class BoardServiceService {
   ): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}`, {
       name,
-      user_id: user.id, 
+      user_id: user.id,
       parent_board_id: parentBoardId ?? null,
     });
   }

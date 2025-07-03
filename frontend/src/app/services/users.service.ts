@@ -7,7 +7,7 @@ import { User } from '../models/models';
   providedIn: 'root', // Hace que este servicio esté disponible en toda la aplicación
 })
 export class UserService {
-  private apiUrl = 'http://localhost:5050/api/v1/users'; // Ajusta al endpoint de tu backend
+  private apiUrl = 'https://taskflow.martinherranzc.es/api/v1/users'; // Ajusta al endpoint de tu backend
 
   constructor(private http: HttpClient) {}
 
@@ -33,10 +33,7 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/${userId}`);
   }
   updateProfilePicture(userId: string, formData: FormData): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profile-pic/${userId}`,
-      formData
-    );
+    return this.http.put(`${this.apiUrl}/profile-pic/${userId}`, formData);
   }
 
   getUsers(): Observable<any> {

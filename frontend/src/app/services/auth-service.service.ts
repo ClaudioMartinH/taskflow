@@ -7,8 +7,8 @@ import { User } from '../models/models';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5050/api/v1/auth'; // URL del endpoint de login
-  private registerUrl = 'http://localhost:5050/api/v1/users';
+  private apiUrl = 'https://taskflow.martinherranzc.es/api/v1/auth'; // URL del endpoint de login
+  private registerUrl = 'https://taskflow.martinherranzc.es/api/v1/users';
 
   constructor(private http: HttpClient) {}
 

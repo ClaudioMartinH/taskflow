@@ -9,7 +9,7 @@ export class SocketService {
   private socket: Socket;
 
   constructor() {
-    this.socket = io('http://localhost:5050');
+    this.socket = io('https://taskflow.martinherranzc.es');
   }
 
   onEvent(event: string, callback: (...args: any[]) => void): void {
